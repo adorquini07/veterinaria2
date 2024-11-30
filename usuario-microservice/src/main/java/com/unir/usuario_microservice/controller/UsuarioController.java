@@ -32,30 +32,67 @@ public class UsuarioController {
     }
 
     @GetMapping("/buscar/{id}")
-    public Optional<Usuario> buscarUsuario(@PathVariable(name = "id") Integer id) {
-        return usuarioService.getFindBy(id);
+    public ResponseEntity<Object
+            > buscarUsuario(@PathVariable(name = "id") Integer id) {
+        if (id == null) {
+            return ResponseEntity.badRequest().body("Falta el id");
+        }
+        Optional<Usuario> usuario = usuarioService.getFindBy(id);
+        if (usuario.isPresent()) {
+            return ResponseEntity.ok(usuario.get());
+        } else {
+            return ResponseEntity.status(404).body("Usuario no encontrado");
+        }
     }
 
     @GetMapping("/buscar/nombre/{nombre}")
-    public List<Usuario> buscarUsuarioPorNombre(@PathVariable(name = "nombre") String nombre) {
-        return usuarioService.findByNombre(nombre);
+    public ResponseEntity<Object> buscarUsuarioPorNombre(@PathVariable(name = "nombre") String nombre) {
+        if (nombre == null || nombre.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body("Hace falta que le pasen el nombre");
+        }
+        return ResponseEntity.ok(usuarioService.findByNombre(nombre));
     }
 
     @PostMapping
-    public ResponseEntity<Usuario> save(@RequestBody Usuario usuario) {
-        Usuario nuevoUsuario = usuarioService.save(usuario);
-        return ResponseEntity.ok(nuevoUsuario);
+    public ResponseEntity<Object> save(@RequestBody Usuario usuario) {
+        try {
+            Usuario nuevoUsuario = usuarioService.save(usuario);
+            return ResponseEntity.ok(nuevoUsuario);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error: " + e.getMessage());
+        }
     }
 
     @PutMapping("/actualizar")
-    public ResponseEntity<Usuario> update(@RequestBody Usuario usuario) {
+    public ResponseEntity<Object> update(@RequestBody Usuario usuario) {
+        if (usuario == null) {
+            return ResponseEntity.badRequest().body("Falta el usuario");
+        }
+
+        Optional<Usuario> usuarioExistente = usuarioService.getFindBy(usuario.getId());
+        if (!usuarioExistente.isPresent()) {
+            return ResponseEntity.status(404).body(null);
+        }
         Usuario usuarioActualizado = usuarioService.save(usuario);
         return ResponseEntity.ok(usuarioActualizado);
     }
 
     @DeleteMapping("/eliminar/{id}")
-    public ResponseEntity<Void> delete(@PathVariable(name = "id") Integer id) {
-        usuarioService.delete(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<Object> delete(@PathVariable(name = "id") Integer id) {
+        if (id == null) {
+            return ResponseEntity.badRequest().body("Falta el id");
+        }
+
+        Optional<Usuario> usuario = usuarioService.getFindBy(id);
+        if (!usuario.isPresent()) {
+            return ResponseEntity.status(404).body("Usuario no encontrado");
+        }
+
+        try {
+            usuarioService.delete(id);
+            return ResponseEntity.ok("Usuario eliminado");
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("No se pudo eliminar el usuario: " + e.getMessage());
+        }
     }
 }
