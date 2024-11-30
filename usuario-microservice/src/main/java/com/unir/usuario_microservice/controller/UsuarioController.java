@@ -27,8 +27,12 @@ public class UsuarioController {
     private UsuarioService usuarioService;
 
     @GetMapping("/listar")
-    public List<Usuario> listarUsuarios() {
-        return usuarioService.getAll();
+    public ResponseEntity<Object> listarUsuarios() {
+        List<Usuario> usuarios = usuarioService.getAll();
+        if (usuarios.isEmpty()) {
+            return ResponseEntity.status(404).body("No hay usuarios disponibles");
+        }
+        return ResponseEntity.ok(usuarios);
     }
 
     @GetMapping("/buscar/{id}")
