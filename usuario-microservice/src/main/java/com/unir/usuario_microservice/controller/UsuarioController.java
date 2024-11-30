@@ -36,8 +36,7 @@ public class UsuarioController {
     }
 
     @GetMapping("/buscar/{id}")
-    public ResponseEntity<Object
-            > buscarUsuario(@PathVariable(name = "id") Integer id) {
+    public ResponseEntity<Object> buscarUsuario(@PathVariable(name = "id") Integer id) {
         if (id == null) {
             return ResponseEntity.badRequest().body("Falta el id");
         }
@@ -59,6 +58,9 @@ public class UsuarioController {
 
     @PostMapping
     public ResponseEntity<Object> save(@RequestBody Usuario usuario) {
+        if (usuario == null) {
+            return ResponseEntity.badRequest().body("Falta el usuario");
+        }
         try {
             Usuario nuevoUsuario = usuarioService.save(usuario);
             return ResponseEntity.ok(nuevoUsuario);
