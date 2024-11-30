@@ -19,7 +19,7 @@ public class ProductoService {
         return productoRepository.findAll();
     }
 
-    public Optional<Producto> getFindById(String id) {
+    public Optional<Producto> getFindById(Integer id) {
         return productoRepository.findById(id);
     }
 
@@ -35,7 +35,7 @@ public class ProductoService {
         return productoRepository.save(producto);
     }
 
-    public void delete(String id) {
+    public void delete(Integer id) {
         productoRepository.deleteById(id);
     }
 }

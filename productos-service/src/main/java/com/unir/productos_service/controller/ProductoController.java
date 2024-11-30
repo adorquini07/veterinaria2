@@ -32,7 +32,7 @@ public class ProductoController {
     }
 
     @GetMapping("/buscar/{id}")
-    public Optional<Producto> buscarProducto(@PathVariable(name = "id") String id) {
+    public Optional<Producto> buscarProducto(@PathVariable(name = "id") Integer id) {
         return productoService.getFindById(id);
     }
 
@@ -54,7 +54,7 @@ public class ProductoController {
     }
 
     @DeleteMapping("/eliminar/{id}")
-    public ResponseEntity<Void> delete(@PathVariable(name = "id") String id) {
+    public ResponseEntity<Void> delete(@PathVariable(name = "id") Integer id) {
         productoService.delete(id);
         return ResponseEntity.noContent().build();
     }
