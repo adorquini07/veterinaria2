@@ -36,7 +36,7 @@ public class ProductoController {
     }
 
     @GetMapping("/buscar/{id}")
-    public ResponseEntity<Object> buscarProducto(@PathVariable(name = "id") Integer id) {
+    public ResponseEntity<Object> buscarProducto(@PathVariable(name = "id", required=true) Integer id) {
         if (id == null) {
             return ResponseEntity.badRequest().body("Falta el id");
         }
@@ -49,11 +49,16 @@ public class ProductoController {
     }
 
     @GetMapping("/buscar/nombre/{nombre}")
-    public ResponseEntity<Object> buscarProductoPorNombre(@PathVariable(name = "nombre") String nombre) {
+    public ResponseEntity<Object> buscarProductoPorNombre(@PathVariable(name = "nombre", required=true) String nombre) {
         if (nombre == null || nombre.trim().isEmpty()) {
             return ResponseEntity.badRequest().body("Hace falta que le pasen el nombre");
         }
-        return ResponseEntity.ok(productoService.findByNombre(nombre));
+        List<Producto> producto = productoService.findByNombre(nombre);
+        if (producto != null && !producto.isEmpty()) {
+            return ResponseEntity.ok(producto);
+        } else {
+            return ResponseEntity.status(404).body("Producto no encontrado");
+        }
     }
 
     @PostMapping
@@ -64,7 +69,7 @@ public class ProductoController {
         try {
             return ResponseEntity.ok(productoService.save(producto));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error al guardar el producto");
+            return ResponseEntity.badRequest().body("Error al guardar el producto " + e.getMessage());
         }
     }
 
