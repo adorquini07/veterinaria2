@@ -39,4 +39,6 @@ public class Producto {
     @Min(value = 0, message = "El campo cantidad no puede ser menor a 0")
     @Max(value = 1000, message = "El campo cantidad no puede ser mayor a 1000")
     private Integer cantidad;
+
+    private String imagePath;
 }

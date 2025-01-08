@@ -1,22 +1,16 @@
 package com.unir.productos_service.controller;
 
+import java.io.File;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.unir.productos_service.entity.Producto;
 import com.unir.productos_service.service.ProductoService;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/producto")
@@ -62,16 +56,40 @@ public class ProductoController {
     }
 
     @PostMapping
-    public ResponseEntity<Object> save(@RequestBody Producto producto) {
-        if (producto == null) {
-            return ResponseEntity.badRequest().body("Falta el producto");
-        }
+    public ResponseEntity<Object> save(
+            @RequestParam("nombre") String nombre,
+            @RequestParam("cantidad") Integer cantidad,
+            @RequestParam("precio") Integer precio,
+            @RequestParam("descripcion") String descripcion,
+            @RequestParam(value = "imagen", required = false) MultipartFile imagen) {
         try {
+            String imagePath = null;
+            if (imagen != null && !imagen.isEmpty()) {
+                String uploadDir = "uploads/";
+                File directory = new File(uploadDir);
+                if (!directory.exists()) {
+                    directory.mkdirs();
+                }
+
+
+                imagePath = uploadDir + imagen.getOriginalFilename();
+                imagen.transferTo(new File(imagePath));
+            }
+
+
+            Producto producto = new Producto();
+            producto.setNombre(nombre);
+            producto.setCantidad(cantidad);
+            producto.setPrecio(precio);
+            producto.setDescripcion(descripcion);
+            producto.setImagePath(imagePath);
+
             return ResponseEntity.ok(productoService.save(producto));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error al guardar el producto " + e.getMessage());
+            return ResponseEntity.badRequest().body("Error al guardar el producto: " + e.getMessage());
         }
     }
+
 
     @PutMapping("/actualizar")
     public ResponseEntity<Object> update(@RequestBody Producto producto) {
